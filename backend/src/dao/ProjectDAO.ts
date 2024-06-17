@@ -70,7 +70,7 @@ export class ProjectDAO {
         respuesta.success = false;
         respuesta.message = "Proyecto no encontrado";
       } else {
-        respuesta.message = "Proyecto actualizado ";
+        respuesta.message = "Proyecto actualizado";
       }
       return respuesta;
     } catch (error) {

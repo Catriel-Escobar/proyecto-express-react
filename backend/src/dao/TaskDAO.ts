@@ -16,7 +16,7 @@ export class TaskDAO {
   ): Promise<crudRpta> => {
     const respuesta: crudRpta = {
       success: true,
-      message: "Proyecto creado correctamente",
+      message: "Tarea creada correctamente",
     };
     try {
       const task = new Task(newTask);
@@ -65,7 +65,7 @@ export class TaskDAO {
         respuesta.success = false;
         respuesta.message = "No Existe una tarea con ese ID";
       } else {
-        respuesta.message = task;
+        respuesta.message = task[0];
       }
       return respuesta;
     } catch (error) {
