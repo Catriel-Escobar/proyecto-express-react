@@ -10,7 +10,7 @@ export default function EditTaskData() {
   const queryParams = new URLSearchParams(location.search);
   const taskId = queryParams.get("editTask")!;
   const { data, isError } = useQuery({
-    queryKey: ["task", taskId],
+    queryKey: ["tasks", taskId],
     queryFn: () => getTaskById({ projectId, taskId }),
     enabled: !!taskId,
   });

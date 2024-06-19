@@ -12,6 +12,7 @@ export const validateSchemaParams =
       if (error instanceof ZodError) {
         return res.status(400).json(error.errors.map((error) => error.message));
       } else if (error instanceof Error) {
+        console.log(error);
         return res.status(400).json(error.message);
       }
     }

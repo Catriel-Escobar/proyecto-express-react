@@ -10,7 +10,6 @@ export default function EditProjectView() {
     queryFn: () => GetProjectsById(projectId),
     retry: false, // cuantas veces intenta hacer la consulta.
   });
-  console.log(data);
 
   if (isLoading) return <p>Cargando...</p>;
   if (isError) return <Navigate to={"/404"} />;
