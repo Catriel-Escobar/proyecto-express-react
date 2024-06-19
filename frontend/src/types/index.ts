@@ -18,6 +18,8 @@ export type UserRegistrationForm = Pick<
   "email" | "password" | "name" | "repassword"
 >;
 export type RequestConfirmationCodeForm = Pick<Auth, "email">;
+export type ForgotPasswordForm = Pick<Auth, "email">;
+export type NewPasswordForm = Pick<Auth, "password" | "repassword">;
 // tasks
 
 export const taskStatusSchema = z.enum([
