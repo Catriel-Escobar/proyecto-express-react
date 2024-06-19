@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import { envs } from "./env.config";
-console.log(envs);
+
 const config = () => {
   return {
     host: envs.SMTP_HOST,

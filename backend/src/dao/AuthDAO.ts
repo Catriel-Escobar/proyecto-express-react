@@ -6,6 +6,7 @@ import Token from "../models/Token";
 import { generateToken } from "../utils/tokenConfirmacion";
 import { AuthEmail } from "../emails/AuthEmail";
 
+type NewPassword = { password: string; token: string };
 export class AuthDAO {
   static createUser = async (user: UserType): Promise<crudRpta> => {
     const respuesta: crudRpta = {
@@ -137,6 +138,82 @@ export class AuthDAO {
       return respuesta;
     } catch (error) {
       throw new Error("Error al envio codigo");
+    }
+  };
+
+  static forgotPassword = async (userEmail: {
+    email: string;
+  }): Promise<crudRpta> => {
+    const email = userEmail.email;
+    const respuesta: crudRpta = {
+      success: true,
+      message: "",
+    };
+    try {
+      const user = await User.findOne({ email: email });
+      if (!user) {
+        respuesta.success = false;
+        respuesta.message = "El usuario no esta registrado";
+        respuesta.status = 404;
+      } else {
+        const token = new Token();
+        token.token = generateToken();
+        token.user = user.id;
+        AuthEmail.sendPasswordResetToken({
+          email: user.email,
+          name: user.name,
+          token: token.token,
+        });
+        await token.save();
+        respuesta.message = "Revisa tu e-mail para instrucciones";
+      }
+      return respuesta;
+    } catch (error) {
+      throw new Error("Error al envio codigo");
+    }
+  };
+
+  static validateToken = async (token: string): Promise<crudRpta> => {
+    const respuesta: crudRpta = {
+      success: true,
+      message: "",
+    };
+    try {
+      const exist = await Token.findOne({ token });
+      if (!exist) {
+        respuesta.success = false;
+        respuesta.message = "El token no es valido";
+      } else {
+        respuesta.message = "Token valido, Define tu nuevo password";
+      }
+      return respuesta;
+    } catch (error) {
+      throw new Error("Error al buscar el token");
+    }
+  };
+
+  static updatePasswordWithToken = async ({
+    password,
+    token,
+  }: NewPassword): Promise<crudRpta> => {
+    const respuesta: crudRpta = {
+      success: true,
+      message: "",
+    };
+    try {
+      const exist = await Token.findOne({ token });
+      if (!exist) {
+        respuesta.success = false;
+        respuesta.message = "El token no es valido";
+      } else {
+        const user = await User.findById(exist.user);
+        user!.password = await hashPassword(password);
+        await Promise.allSettled([user?.save(), exist.deleteOne()]);
+        respuesta.message = "Password actualizado correctamente";
+      }
+      return respuesta;
+    } catch (error) {
+      throw new Error("Error al buscar el token");
     }
   };
 }

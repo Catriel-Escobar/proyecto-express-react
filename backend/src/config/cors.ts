@@ -9,7 +9,6 @@ const whiteList: (string | undefined)[] = [
 
 export const corsConfig: CorsOptions = {
   origin: function (origin, callback) {
-    console.log(process.argv);
     if (process.argv[2] === "--api") {
       whiteList.push(undefined);
     }

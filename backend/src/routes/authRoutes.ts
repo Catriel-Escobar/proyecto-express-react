@@ -3,9 +3,12 @@ import { AuthController } from "../controllers/AuthController";
 import { validateSchemaBody } from "../middlewares/validate.body";
 import CreateAuthSchema, {
   LoginSchema,
+  NewPasswordSchema,
   TokenConfirmCreateAuthSchema,
+  TokenParamConfirm,
   UserMail,
 } from "../schemas/authSchema.zod";
+import { validateSchemaParams } from "../middlewares/validate.params";
 
 const router = Router();
 
@@ -31,5 +34,24 @@ router.post(
   "/request-code",
   validateSchemaBody(UserMail),
   AuthController.requestConfirmationCode
+);
+
+router.post(
+  "/forgot-password",
+  validateSchemaBody(UserMail),
+  AuthController.forgotPassword
+);
+
+router.post(
+  "/validate-token",
+  validateSchemaBody(TokenConfirmCreateAuthSchema),
+  AuthController.validateToken
+);
+
+router.post(
+  "/update-password/:token",
+  validateSchemaParams(TokenParamConfirm, "token"),
+  validateSchemaBody(NewPasswordSchema),
+  AuthController.updatePasswordWithToken
 );
 export default router;

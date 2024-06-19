@@ -50,4 +50,47 @@ export class AuthController {
       res.status(500).json({ error: "Hubo un error" });
     }
   };
+
+  static forgotPassword = async (req: Request, res: Response) => {
+    try {
+      const { success, message, status } = await AuthDAO.forgotPassword(
+        req.body
+      );
+      success
+        ? res.send({ message })
+        : res.status(status!).send({ error: message });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Hubo un error" });
+    }
+  };
+
+  static validateToken = async (req: Request, res: Response) => {
+    try {
+      const { message, success } = await AuthDAO.validateToken(req.body.token);
+      success
+        ? res.send({ message })
+        : res.status(404).send({ error: message });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Hubo un error" });
+    }
+  };
+
+  static updatePasswordWithToken = async (req: Request, res: Response) => {
+    const password = req.body.password;
+    const token = req.params.token;
+    try {
+      const { message, success } = await AuthDAO.updatePasswordWithToken({
+        password,
+        token,
+      });
+      success
+        ? res.send({ message })
+        : res.status(404).send({ error: message });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Hubo un error" });
+    }
+  };
 }

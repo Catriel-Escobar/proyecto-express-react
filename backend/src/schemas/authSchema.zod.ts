@@ -20,21 +20,44 @@ const CreateAuthSchema = z.object({
     invalid_type_error: "El titulo debe ser un texto",
   }),
 });
+export const TokenConfirmCreateAuthSchema = z.object({
+  token: z
+    .string({
+      required_error: "El token es requerido para confirmar el registro",
+    })
+    .length(6, {
+      message: "El token invalido",
+    }),
+});
+
+export const TokenParamConfirm = z.string({
+  required_error: "El token es requerido para confirmar el registro",
+});
+
+//? picks
+export const NewPasswordSchema = CreateAuthSchema.pick({
+  password: true,
+  repassword: true,
+}).refine((data) => data.password === data.repassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["repassword"],
+});
 export const UserMail = CreateAuthSchema.pick({
   email: true,
 });
-export type UserType = z.infer<typeof CreateAuthSchema>;
 export type UserEmailToToken = Pick<UserType, "email">;
-// Esquema nuevo para solo email y password
+
 export const LoginSchema = CreateAuthSchema.pick({
   email: true,
   password: true,
 });
 
+export type UserType = z.infer<typeof CreateAuthSchema>;
 export type LoginType = z.infer<typeof LoginSchema>;
 
 // le agrego el efecto luego de utilizar el pick. para poder utilizar el pick y refine a un schema.
 
+// AGREGADA UNA OPCION
 export default CreateAuthSchema.refine(
   (data) => data.password === data.repassword,
   {
@@ -42,13 +65,3 @@ export default CreateAuthSchema.refine(
     path: ["repassword"],
   }
 );
-
-export const TokenConfirmCreateAuthSchema = z.object({
-  token: z
-    .string({
-      required_error: "El token es requerido para confirmar el registro",
-    })
-    .length(6, {
-      message: "El codigo de confirmacion admite solo 6 caracteres.",
-    }),
-});
