@@ -5,6 +5,7 @@ import authRoutes from "./routes/authRoutes";
 import cors from "cors";
 import morgan from "morgan";
 import { corsConfig } from "./config/cors";
+import cookieParser from "cookie-parser";
 
 connectDB();
 
@@ -12,6 +13,7 @@ const app = express();
 app.use(cors(corsConfig));
 //login
 app.use(morgan("dev"));
+app.use(cookieParser());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);

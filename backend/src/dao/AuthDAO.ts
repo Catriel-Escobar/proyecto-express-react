@@ -5,6 +5,7 @@ import { crudRpta } from "../types/types.response";
 import Token from "../models/Token";
 import { generateToken } from "../utils/tokenConfirmacion";
 import { AuthEmail } from "../emails/AuthEmail";
+import { generateJWT } from "../utils/jwt";
 
 type NewPassword = { password: string; token: string };
 export class AuthDAO {
@@ -89,12 +90,13 @@ export class AuthDAO {
           "Tu cuenta no esta confirmada. se envio un codigo de confirmacion a tu mail.";
       } else {
         const passwordValida = await comparePassword(password, user.password);
-        console.log(passwordValida);
         if (!passwordValida) {
           respuesta.message = "Los datos ingresados son incorrectos.";
         } else {
-          respuesta.message = "Login exitoso.";
+          const token = generateJWT({ id: user.id });
           respuesta.success = true;
+          respuesta.message = "Login exitoso";
+          respuesta.token = token;
         }
       }
       return respuesta;

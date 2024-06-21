@@ -5,8 +5,10 @@ import { ProjectDAO } from "../dao/ProjectDAO";
 export class ProjectController {
   // TODO: CREATE
   static createProject = async (req: Request, res: Response) => {
+    const project = req.body;
+    project.manager = req.user?.id;
     try {
-      const { message }: crudRpta = await ProjectDAO.createProject(req.body);
+      const { message }: crudRpta = await ProjectDAO.createProject(project);
       res.send({ message: message });
     } catch (error) {
       res.status(500).send({ error: "Error interno." });
@@ -14,8 +16,9 @@ export class ProjectController {
   };
   // *GEEET ALL
   static getAllProjects = async (req: Request, res: Response) => {
+    const { id } = req.user!;
     try {
-      const { message }: crudRpta = await ProjectDAO.getAllProjects();
+      const { message }: crudRpta = await ProjectDAO.getAllProjects(id);
       res.send(message);
     } catch (error) {
       res.status(500).send({ error: "Error interno." });
@@ -24,10 +27,13 @@ export class ProjectController {
 
   // *GEEET BY ID
   static getProjectById = async (req: Request, res: Response) => {
+    const projectId = req.params.id;
+    const managerId = req.user?.id;
     try {
-      const { success, message }: crudRpta = await ProjectDAO.getProjectById(
-        req.params.id
-      );
+      const { success, message }: crudRpta = await ProjectDAO.getProjectById({
+        projectId,
+        managerId,
+      });
       success ? res.send(message) : res.status(400).send({ error: message });
     } catch (error) {
       res.status(500).send({ error: "Error interno." });
@@ -36,9 +42,11 @@ export class ProjectController {
 
   //? UPDATE
   static updateProject = async (req: Request, res: Response) => {
+    const managerId: string = req.user?.id;
     try {
       const { success, message }: crudRpta = await ProjectDAO.updateProject(
         req.params.id,
+        managerId,
         req.body
       );
       success
@@ -51,9 +59,11 @@ export class ProjectController {
 
   //!DELETE
   static deleteProject = async (req: Request, res: Response) => {
+    const managerId: string = req.user?.id;
     try {
       const { success, message }: crudRpta = await ProjectDAO.deleteProject(
-        req.params.id
+        req.params.id,
+        managerId
       );
       success
         ? res.send({ message: message })

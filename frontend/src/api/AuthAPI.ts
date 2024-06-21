@@ -1,12 +1,14 @@
 import api from "@/lib/axios";
-import { isAxiosError } from "axios";
+import { AxiosError, isAxiosError } from "axios";
 import {
   ConfirmToken,
   ForgotPasswordForm,
   NewPasswordForm,
   RequestConfirmationCodeForm,
+  User,
   UserLoginForm,
   UserRegistrationForm,
+  userSchema,
 } from "../types";
 
 export async function createAccount(formData: UserRegistrationForm) {
@@ -51,7 +53,7 @@ export async function requestConfirmationCode(
 export async function login(formData: UserLoginForm) {
   try {
     const url = "/auth/login";
-    const { data } = await api.post(url, formData);
+    const { data } = await api.post(url, formData, { withCredentials: true });
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {
@@ -103,5 +105,32 @@ export async function updatePasswordWithToken({
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.error);
     }
+  }
+}
+
+export async function getUser() {
+  try {
+    const { data } = await api<User>("/auth/user");
+    const response = userSchema.safeParse(data);
+    if (response.success) {
+      return response.data;
+    } else {
+      throw new AxiosError(response.error.message);
+    }
+    return data;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function logout() {
+  try {
+    await api.post("/auth/logout");
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
   }
 }

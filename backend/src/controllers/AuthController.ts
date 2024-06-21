@@ -28,10 +28,16 @@ export class AuthController {
 
   static loginAccount = async (req: Request, res: Response) => {
     try {
-      const { success, message, status } = await AuthDAO.loginAccount(req.body);
-      success
-        ? res.send({ message })
-        : res.status(status!).send({ error: message });
+      const { success, message, status, token } = await AuthDAO.loginAccount(
+        req.body
+      );
+
+      if (success) {
+        res.cookie("token", token, { httpOnly: true });
+        return res.send({ message });
+      } else {
+        res.status(status!).send({ error: message });
+      }
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: "Hubo un error" });
@@ -92,5 +98,19 @@ export class AuthController {
       console.log(error);
       res.status(500).json({ error: "Hubo un error" });
     }
+  };
+
+  static logout = async (req: Request, res: Response) => {
+    try {
+      res.clearCookie("token");
+      res.sendStatus(200);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Hubo un error" });
+    }
+  };
+
+  static user = async (req: Request, res: Response) => {
+    res.json(req.user!);
   };
 }

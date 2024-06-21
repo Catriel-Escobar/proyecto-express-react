@@ -1,11 +1,23 @@
+import { Types } from "mongoose";
 import Project from "../models/Projects";
 import { crudRpta } from "../types/types.response";
 import { cleanObject } from "../utils/transformObjects";
 
 type estandarObject = { [key: string]: string };
-
+type FindByIdType = {
+  projectId: string;
+  managerId: String;
+};
+type CreateProjectType = {
+  projectName: string;
+  clientName: string;
+  description: string;
+  manager: string;
+};
 export class ProjectDAO {
-  static createProject = async (project: object): Promise<crudRpta> => {
+  static createProject = async (
+    project: CreateProjectType
+  ): Promise<crudRpta> => {
     const newProject = new Project(project);
     const respuesta: crudRpta = {
       success: true,
@@ -21,13 +33,15 @@ export class ProjectDAO {
     }
   };
 
-  static getAllProjects = async (): Promise<crudRpta> => {
+  static getAllProjects = async (id: string): Promise<crudRpta> => {
     const respuesta: crudRpta = {
       success: true,
       message: "",
     };
     try {
-      respuesta.message = await Project.find({});
+      respuesta.message = await Project.find({
+        $or: [{ manager: { $in: id } }],
+      });
       return respuesta;
     } catch (error) {
       console.error("Error en la consulta de tareas:", error);
@@ -35,18 +49,26 @@ export class ProjectDAO {
     }
   };
 
-  static getProjectById = async (id: string): Promise<crudRpta> => {
-    const respuesta: crudRpta = {
-      success: true,
-      message: "",
-    };
+  static getProjectById = async ({
+    projectId,
+    managerId,
+  }: FindByIdType): Promise<crudRpta> => {
+    console.log(projectId, managerId);
+
+    const respuesta: crudRpta = { success: true, message: "" };
     try {
-      const project = await Project.findById(id).populate("tasks");
+      const project = await Project.findById(projectId).populate("tasks");
+
       if (!project) {
         respuesta.success = false;
         respuesta.message = "Proyecto no encontrado";
       } else {
-        respuesta.message = project;
+        if (project.manager?.toString() !== managerId) {
+          respuesta.success = false;
+          respuesta.message = "Proyecto no encontrado";
+        } else {
+          respuesta.message = project;
+        }
       }
       return respuesta;
     } catch (error) {
@@ -57,6 +79,7 @@ export class ProjectDAO {
 
   static updateProject = async (
     id: string,
+    managerId: string,
     object: estandarObject
   ): Promise<crudRpta> => {
     const respuesta: crudRpta = {
@@ -65,12 +88,18 @@ export class ProjectDAO {
     };
     const newObj = cleanObject(object);
     try {
-      const projectUpdate = await Project.findByIdAndUpdate(id, newObj);
-      if (!projectUpdate) {
+      const project = await Project.findByIdAndUpdate(id, newObj);
+      if (!project) {
         respuesta.success = false;
         respuesta.message = "Proyecto no encontrado";
       } else {
-        respuesta.message = "Proyecto actualizado";
+        if (project.manager?.toString() !== managerId) {
+          respuesta.success = false;
+          respuesta.message = "Solo el manager puede actualizar el proyecto";
+        } else {
+          await project.save();
+          respuesta.message = "Proyecto actualizado!";
+        }
       }
       return respuesta;
     } catch (error) {
@@ -78,7 +107,10 @@ export class ProjectDAO {
     }
   };
 
-  static deleteProject = async (id: string): Promise<crudRpta> => {
+  static deleteProject = async (
+    id: string,
+    managerId: string
+  ): Promise<crudRpta> => {
     const respuesta: crudRpta = {
       success: true,
       message: "",
@@ -89,8 +121,13 @@ export class ProjectDAO {
         respuesta.success = false;
         respuesta.message = "Proyecto no encontrado";
       } else {
-        await project.deleteOne();
-        respuesta.message = "Proyecto Eliminado";
+        if (project.manager?.toString() !== managerId) {
+          respuesta.success = false;
+          respuesta.message = "Solo el manager puede eliminar el proyecto";
+        } else {
+          await project.deleteOne();
+          respuesta.message = "Proyecto Eliminado";
+        }
       }
       return respuesta;
     } catch (error) {

@@ -8,4 +8,5 @@ export const envs = {
   SMTP_PORT: get("SMTP_PORT").required().asPortNumber(),
   SMTP_USER: get("SMTP_USER").required().asString(),
   SMTP_PASS: get("SMTP_PASS").required().asString(),
+  JWT_SECRET: get("JWT_SECRET").required().asString(),
 };

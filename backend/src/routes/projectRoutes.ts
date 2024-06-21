@@ -3,13 +3,21 @@ import { ProjectController } from "../controllers/ProjectController";
 import { validateSchemaBody } from "../middlewares/validate.body";
 import { validateSchemaParams } from "../middlewares/validate.params";
 import { createProjectSchema } from "../schemas/projectSchema.zod";
-import { ObjectIdSchema } from "../schemas/objectIdSchema.zod";
+import {
+  ObjectIdSchema,
+  ObjectIdSchemaObj,
+} from "../schemas/objectIdSchema.zod";
 import { TaskController } from "../controllers/TaskController";
 import { validateProjectExists } from "../middlewares/validate.project";
 import { createTaskSchema } from "../schemas/taskSchema.zod";
 import { statusSchema } from "../schemas/statusSchema.zod";
+import { authValidate } from "../middlewares/validate.auth";
+import { UserMail } from "../schemas/authSchema.zod";
+import { TeamMemberController } from "../controllers/TeamController";
 
 const router = Router();
+
+router.use(authValidate);
 
 router.post(
   "/",
@@ -84,5 +92,33 @@ router.post(
   validateSchemaParams(ObjectIdSchema, "taskId"),
   validateSchemaBody(statusSchema),
   TaskController.updateStatus
+);
+
+//! /** ROUTES FOR TEAMS */
+
+router.post(
+  "/:projectId/team/find",
+  validateSchemaParams(ObjectIdSchema, "projectId"),
+  validateSchemaBody(UserMail),
+  TeamMemberController.findMemberByEmail
+);
+
+router.get(
+  "/:projectId/team",
+  validateSchemaParams(ObjectIdSchema, "projectId"),
+  TeamMemberController.getProjectTeam
+);
+router.post(
+  "/:projectId/team",
+  validateSchemaParams(ObjectIdSchema, "projectId"),
+  validateSchemaBody(ObjectIdSchemaObj),
+  TeamMemberController.addMemberById
+);
+
+router.delete(
+  "/:projectId/team",
+  validateSchemaParams(ObjectIdSchema, "projectId"),
+  validateSchemaBody(ObjectIdSchemaObj),
+  TeamMemberController.removeMemberById
 );
 export default router;

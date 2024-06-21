@@ -9,6 +9,7 @@ import CreateAuthSchema, {
   UserMail,
 } from "../schemas/authSchema.zod";
 import { validateSchemaParams } from "../middlewares/validate.params";
+import { authValidate } from "../middlewares/validate.auth";
 
 const router = Router();
 
@@ -54,4 +55,7 @@ router.post(
   validateSchemaBody(NewPasswordSchema),
   AuthController.updatePasswordWithToken
 );
+router.post("/logout", AuthController.logout);
+router.get("/user", authValidate, AuthController.user);
+
 export default router;

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// AUTH & USERS
+//!AUTH & USERS
 
 export const authSchema = z.object({
   name: z.string(),
@@ -9,6 +9,19 @@ export const authSchema = z.object({
   repassword: z.string(),
   token: z.string(),
 });
+
+//! AUTH SCHEMA
+
+export const userSchema = authSchema
+  .pick({
+    name: true,
+    email: true,
+  })
+  .extend({
+    _id: z.string({ message: "el id debe ser de tipo number" }),
+  });
+
+export type User = z.infer<typeof userSchema>;
 
 export type Auth = z.infer<typeof authSchema>;
 export type ConfirmToken = Pick<Auth, "token">;
@@ -30,6 +43,7 @@ export const taskStatusSchema = z.enum([
   "completed",
 ]);
 
+//! task schema
 export const taskSchema = z.object({
   // schema tipo objeto. ZOD
   _id: z.string(),
@@ -45,7 +59,7 @@ export type Task = z.infer<typeof taskSchema>;
 export type TaskStatus = z.infer<typeof taskStatusSchema>;
 export type TaskFormData = Pick<Task, "name" | "description">;
 
-// Projects
+//! Projects schema
 
 export const projectSchema = z.object({
   // schema tipo objeto. ZOD
@@ -73,3 +87,15 @@ export type ProjectFormData = Pick<
   Project,
   "clientName" | "projectName" | "description"
 >;
+
+// TEAM SCHEMA
+
+export const TeamMemberSchema = userSchema.pick({
+  email: true,
+  name: true,
+  _id: true,
+});
+
+export type TeamMember = z.infer<typeof TeamMemberSchema>;
+
+export type TeamMemberForm = Pick<TeamMember, "email">;
