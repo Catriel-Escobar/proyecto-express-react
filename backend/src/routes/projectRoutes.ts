@@ -116,9 +116,9 @@ router.post(
 );
 
 router.delete(
-  "/:projectId/team",
+  "/:projectId/team/:userId",
   validateSchemaParams(ObjectIdSchema, "projectId"),
-  validateSchemaBody(ObjectIdSchemaObj),
+  validateSchemaParams(ObjectIdSchema, "userId"),
   TeamMemberController.removeMemberById
 );
 export default router;

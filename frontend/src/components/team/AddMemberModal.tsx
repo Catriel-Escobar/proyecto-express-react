@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useLocation, useNavigate } from "react-router-dom";
+import AddMemberForm from "./AddMemberForm";
 
 export default function AddMemberModal() {
   const location = useLocation();
@@ -48,7 +49,7 @@ export default function AddMemberModal() {
                       para agregarlo al proyecto
                     </span>
                   </p>
-                  <AddMemberModal />
+                  <AddMemberForm />
                 </Dialog.Panel>
               </Transition.Child>
             </div>

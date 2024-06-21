@@ -30,7 +30,7 @@ export class TeamMemberDAO {
         path: "team",
         select: "id email name",
       });
-      return project;
+      return project?.team;
     } catch (error) {
       console.log("get project", error);
       throw new Error("error al buscar el team del project");

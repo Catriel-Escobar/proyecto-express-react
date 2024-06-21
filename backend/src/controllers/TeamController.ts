@@ -44,7 +44,7 @@ export class TeamMemberController {
   };
 
   static removeMemberById = async (req: Request, res: Response) => {
-    const { id } = req.body;
+    const id = req.params.userId;
     const project: IProject = req.project;
     try {
       const { success, message } = await TeamMemberDAO.removeMemberById({
