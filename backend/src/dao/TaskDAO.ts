@@ -64,7 +64,12 @@ export class TaskDAO {
       const task = await Task.findOne({
         _id: taskId,
         project: projectId,
-      }).populate({ path: "completedBy", select: "id name" });
+      })
+        .populate({ path: "completedBy.user", select: "id name email" })
+        .populate({
+          path: "notes",
+          populate: { path: "createdBy", select: "id name email" },
+        });
       if (!task) {
         respuesta.success = false;
         respuesta.message = "No Existe una tarea con ese ID";
@@ -151,11 +156,11 @@ export class TaskDAO {
     const { status } = estado;
     try {
       task.status = status;
-      if (task.status === "pending") {
-        task.completedBy = null;
-      } else {
-        task.completedBy = userId;
-      }
+      const data = {
+        user: userId,
+        status: status,
+      };
+      task.completedBy.push(data);
       await task.save();
       respuesta.message = "Status actualizado";
 

@@ -56,7 +56,14 @@ export class ProjectDAO {
     console.log(projectId, userId);
     const respuesta: crudRpta = { success: true, message: "" };
     try {
-      const project = await Project.findById(projectId).populate("tasks");
+      const project = await Project.findById(projectId).populate({
+        path: "tasks",
+        populate: {
+          path: "completedBy.user",
+          select: "id name email",
+        },
+      });
+
       if (!project) {
         respuesta.success = false;
         respuesta.message = "Proyecto no encontrado";

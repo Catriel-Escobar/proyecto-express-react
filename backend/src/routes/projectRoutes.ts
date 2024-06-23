@@ -15,6 +15,8 @@ import { authValidate } from "../middlewares/validate.auth";
 import { UserMail } from "../schemas/authSchema.zod";
 import { TeamMemberController } from "../controllers/TeamController";
 import { hasAuthorization, validateTask } from "../middlewares/validate.task";
+import { NoteSchema } from "../schemas/noteSchema.zod";
+import { NoteController } from "../controllers/NoteController";
 
 const router = Router();
 
@@ -50,7 +52,11 @@ router.delete(
 
 //! TASKS
 
+//!! MIDDLEWAREAS PARA VALIDAR PROYECT ID TASK ID Y EXISTENCIA DE AMBOS.
+router.param("projectId", validateSchemaParams(ObjectIdSchema, "projectId"));
+router.param("taskId", validateSchemaParams(ObjectIdSchema, "taskId"));
 router.param("projectId", validateProjectExists);
+router.param("taskId", validateTask);
 
 router.post(
   "/:projectId/tasks",
@@ -60,17 +66,13 @@ router.post(
   TaskController.createTask
 );
 
-router.get(
-  "/:projectId/tasks",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
-  TaskController.getProjectTasks
-);
+router.get("/:projectId/tasks", TaskController.getProjectTasks);
 
 router.get(
   "/:projectId/tasks/:taskId",
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "taskId"),
-  validateTask,
+
   TaskController.getTaskById
 );
 
@@ -78,7 +80,7 @@ router.put(
   "/:projectId/tasks/:taskId",
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "taskId"),
-  validateTask,
+
   hasAuthorization,
   validateSchemaBody(createTaskSchema),
   TaskController.updateTask
@@ -88,7 +90,7 @@ router.delete(
   "/:projectId/tasks/:taskId",
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "taskId"),
-  validateTask,
+
   hasAuthorization,
   TaskController.deleteTask
 );
@@ -98,7 +100,6 @@ router.post(
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "taskId"),
   validateSchemaBody(statusSchema),
-  validateTask,
   TaskController.updateStatus
 );
 
@@ -128,5 +129,20 @@ router.delete(
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "userId"),
   TeamMemberController.removeMemberById
+);
+
+/** Routes for Notes */
+router.post(
+  "/:projectId/tasks/:taskId/notes",
+  validateSchemaBody(NoteSchema),
+  NoteController.createNote
+);
+
+router.get("/:projectId/tasks/:taskId/notes", NoteController.getTaskNote);
+
+router.delete(
+  "/:projectId/tasks/:taskId/notes/:noteId",
+  validateSchemaParams(ObjectIdSchema, "noteId"),
+  NoteController.deleteNote
 );
 export default router;

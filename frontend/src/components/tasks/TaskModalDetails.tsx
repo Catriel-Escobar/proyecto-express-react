@@ -65,8 +65,7 @@ export default function TaskModalDetails() {
             className="relative z-10"
             onClose={() => {
               navigate(location.pathname, { replace: true });
-            }}
-          >
+            }}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -74,8 +73,7 @@ export default function TaskModalDetails() {
               enterTo="opacity-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
+              leaveTo="opacity-0">
               <div className="fixed inset-0 bg-black/60" />
             </Transition.Child>
 
@@ -88,24 +86,36 @@ export default function TaskModalDetails() {
                   enterTo="opacity-100 scale-100"
                   leave="ease-in duration-200"
                   leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
+                  leaveTo="opacity-0 scale-95">
                   <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all p-16">
                     <p className="text-sm text-slate-400">
-                      Agregada el:{formatDate(data.createdAt)}{" "}
+                      {`Agregada el 
+                      ${formatDate(data.createdAt)}`}
                     </p>
                     <p className="text-sm text-slate-400">
-                      Última actualización:{formatDate(data.updatedAt)}
+                      {`Última actualización ${formatDate(data.updatedAt)}`}
                     </p>
                     <Dialog.Title
                       as="h3"
-                      className="font-black text-4xl text-slate-600 my-5"
-                    >
+                      className="font-black text-4xl text-slate-600 my-5">
                       {data.name}
                     </Dialog.Title>
                     <p className="text-lg text-slate-500 mb-2">
                       Descripción:{data.description}
                     </p>
+                    <p className=" text-2xl text-slate-500 mb-2">
+                      Historial de cambios
+                    </p>
+                    <ul className="list-decimal">
+                      {data.completedBy.map((activityLog) => (
+                        <li key={activityLog._id}>
+                          <span className="font-bold text-slate-600">
+                            {statusTranslations[activityLog.status]}
+                          </span>{" "}
+                          Por: {activityLog.user?.name}
+                        </li>
+                      ))}
+                    </ul>
                     <div className="my-5 space-y-3">
                       <label className="font-bold">
                         Estado Actual:{data.status}
@@ -115,8 +125,7 @@ export default function TaskModalDetails() {
                         name=""
                         id=""
                         defaultValue={data.status}
-                        onChange={handleChange}
-                      >
+                        onChange={handleChange}>
                         {Object.entries(statusTranslations).map(
                           ([key, value]) => (
                             <option key={key} value={key}>
