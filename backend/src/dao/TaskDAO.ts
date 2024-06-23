@@ -1,7 +1,8 @@
-import Task from "../models/Task";
+import Task, { ITask, TaskStatus } from "../models/Task";
 import { cleanObject } from "../utils/transformObjects";
 import { IProject } from "../models/Projects";
 import { crudRpta } from "../types/types.response";
+import { Types } from "mongoose";
 
 type estandarObject = { [key: string]: string };
 type objectIds = {
@@ -60,12 +61,15 @@ export class TaskDAO {
       message: "",
     };
     try {
-      const task = await Task.find({ _id: taskId, project: projectId });
-      if (!task || task.length === 0) {
+      const task = await Task.findOne({
+        _id: taskId,
+        project: projectId,
+      }).populate({ path: "completedBy", select: "id name" });
+      if (!task) {
         respuesta.success = false;
         respuesta.message = "No Existe una tarea con ese ID";
       } else {
-        respuesta.message = task[0];
+        respuesta.message = task;
       }
       return respuesta;
     } catch (error) {
@@ -136,29 +140,25 @@ export class TaskDAO {
   };
 
   static updateStatus = async (
-    ids: objectIds,
-    status: object
+    task: ITask,
+    estado: { status: TaskStatus },
+    userId: Types.ObjectId
   ): Promise<crudRpta> => {
     const respuesta: crudRpta = {
       success: true,
       message: "",
     };
+    const { status } = estado;
     try {
-      const task = await Task.findOneAndUpdate(
-        {
-          _id: ids.taskId,
-          project: ids.projectId,
-        },
-        status,
-        { new: true }
-      );
-
-      if (!task) {
-        respuesta.success = false;
-        respuesta.message = "Accion no valida";
+      task.status = status;
+      if (task.status === "pending") {
+        task.completedBy = null;
       } else {
-        respuesta.message = "Status actualizado";
+        task.completedBy = userId;
       }
+      await task.save();
+      respuesta.message = "Status actualizado";
+
       return respuesta;
     } catch (error) {
       console.error("Error en la consulta de tareas:", error);

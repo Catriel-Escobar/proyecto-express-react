@@ -9,14 +9,15 @@ import { Fragment } from "react/jsx-runtime";
 
 type TaskCardProp = {
   task: Task;
+  canEdit: boolean;
 };
 
-export default function TaskCard({ task }: TaskCardProp) {
+export default function TaskCard({ task, canEdit }: TaskCardProp) {
   const navite = useNavigate();
   const params = useParams();
   const projectId = params.projectId!;
   const queryClient = useQueryClient();
-
+  console.log(canEdit);
   const { mutate } = useMutation({
     mutationFn: deleteTask,
     onError: (error) => {
@@ -33,7 +34,7 @@ export default function TaskCard({ task }: TaskCardProp) {
         <button
           type="button"
           className="text-xl font-bold text-slate-600 text-left"
-        >
+          onClick={() => navite(location.pathname + `?viewTask=${task._id}`)}>
           {task.name}
         </button>
         <p className="text-slate-500">{task.description}</p>
@@ -51,8 +52,7 @@ export default function TaskCard({ task }: TaskCardProp) {
             enterTo="transform opacity-100 scale-100"
             leave="transition ease-in duration-75"
             leaveFrom="transform opacity-100 scale-100"
-            leaveTo="transform opacity-0 scale-95"
-          >
+            leaveTo="transform opacity-0 scale-95">
             <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
               <Menu.Item>
                 <button
@@ -60,34 +60,35 @@ export default function TaskCard({ task }: TaskCardProp) {
                   className="block px-3 py-1 text-sm leading-6 text-gray-900"
                   onClick={() =>
                     navite(location.pathname + `?viewTask=${task._id}`)
-                  }
-                >
+                  }>
                   Ver Tarea
                 </button>
               </Menu.Item>
-              <Menu.Item>
-                <button
-                  type="button"
-                  className="block px-3 py-1 text-sm leading-6 text-gray-900"
-                  onClick={() =>
-                    navite(location.pathname + `?editTask=${task._id}`)
-                  }
-                >
-                  Editar Tarea
-                </button>
-              </Menu.Item>
+              {canEdit && (
+                <>
+                  <Menu.Item>
+                    <button
+                      type="button"
+                      className="block px-3 py-1 text-sm leading-6 text-gray-900"
+                      onClick={() =>
+                        navite(location.pathname + `?editTask=${task._id}`)
+                      }>
+                      Editar Tarea
+                    </button>
+                  </Menu.Item>
 
-              <Menu.Item>
-                <button
-                  type="button"
-                  className="block px-3 py-1 text-sm leading-6 text-red-500"
-                  onClick={() => {
-                    mutate({ projectId, taskId: task._id });
-                  }}
-                >
-                  Eliminar Tarea
-                </button>
-              </Menu.Item>
+                  <Menu.Item>
+                    <button
+                      type="button"
+                      className="block px-3 py-1 text-sm leading-6 text-red-500"
+                      onClick={() => {
+                        mutate({ projectId, taskId: task._id });
+                      }}>
+                      Eliminar Tarea
+                    </button>
+                  </Menu.Item>
+                </>
+              )}
             </Menu.Items>
           </Transition>
         </Menu>

@@ -6,7 +6,7 @@ import { cleanObject } from "../utils/transformObjects";
 type estandarObject = { [key: string]: string };
 type FindByIdType = {
   projectId: string;
-  managerId: String;
+  userId: Types.ObjectId;
 };
 type CreateProjectType = {
   projectName: string;
@@ -40,7 +40,7 @@ export class ProjectDAO {
     };
     try {
       respuesta.message = await Project.find({
-        $or: [{ manager: { $in: id } }],
+        $or: [{ manager: { $in: id } }, { team: { $in: id } }],
       });
       return respuesta;
     } catch (error) {
@@ -51,21 +51,22 @@ export class ProjectDAO {
 
   static getProjectById = async ({
     projectId,
-    managerId,
+    userId,
   }: FindByIdType): Promise<crudRpta> => {
-    console.log(projectId, managerId);
-
+    console.log(projectId, userId);
     const respuesta: crudRpta = { success: true, message: "" };
     try {
       const project = await Project.findById(projectId).populate("tasks");
-
       if (!project) {
         respuesta.success = false;
         respuesta.message = "Proyecto no encontrado";
       } else {
-        if (project.manager?.toString() !== managerId) {
+        if (
+          project.manager?.toString() !== userId?.toString() &&
+          !project.team.includes(userId)
+        ) {
           respuesta.success = false;
-          respuesta.message = "Proyecto no encontrado";
+          respuesta.message = "No tenes acceso a este proyecto";
         } else {
           respuesta.message = project;
         }

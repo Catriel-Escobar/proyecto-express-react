@@ -31,6 +31,7 @@ export async function getTaskById({
   const url = `/projects/${projectId}/tasks/${taskId}`;
   try {
     const { data } = await api.get(url);
+    console.log(data);
     const response = taskSchema.safeParse(data);
     if (response.success) {
       return response.data;
@@ -54,7 +55,6 @@ export async function updateTask({
   const url = `/projects/${projectId}/tasks/${taskId}`;
   try {
     const { data } = await api.put(url, taskForm);
-
     return data;
   } catch (error) {
     if (isAxiosError(error) && error.response) {

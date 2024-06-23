@@ -32,6 +32,7 @@ export default function EditTaskModal({ data, taskId }: EditTaskModalProps) {
   const { mutate } = useMutation({
     mutationFn: updateTask,
     onError: (error) => {
+      toast.error(error.message);
       console.log(error);
     },
     onSuccess: (data) => {
@@ -56,8 +57,7 @@ export default function EditTaskModal({ data, taskId }: EditTaskModalProps) {
       <Dialog
         as="div"
         className="relative z-10"
-        onClose={() => navigate(location.pathname, { replace: true })}
-      >
+        onClose={() => navigate(location.pathname, { replace: true })}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -65,8 +65,7 @@ export default function EditTaskModal({ data, taskId }: EditTaskModalProps) {
           enterTo="opacity-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
+          leaveTo="opacity-0">
           <div className="fixed inset-0 bg-black/60" />
         </Transition.Child>
 
@@ -79,8 +78,7 @@ export default function EditTaskModal({ data, taskId }: EditTaskModalProps) {
               enterTo="opacity-100 scale-100"
               leave="ease-in duration-200"
               leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
+              leaveTo="opacity-0 scale-95">
               <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all p-16">
                 <Dialog.Title as="h3" className="font-black text-4xl  my-5">
                   Editar Tarea
@@ -94,8 +92,7 @@ export default function EditTaskModal({ data, taskId }: EditTaskModalProps) {
                 <form
                   className="mt-10 space-y-3"
                   noValidate
-                  onSubmit={onSubmit}
-                >
+                  onSubmit={onSubmit}>
                   <TaskForm register={register} errors={errors} />
                   <input
                     type="submit"

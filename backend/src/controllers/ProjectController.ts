@@ -28,11 +28,11 @@ export class ProjectController {
   // *GEEET BY ID
   static getProjectById = async (req: Request, res: Response) => {
     const projectId = req.params.id;
-    const managerId = req.user?.id;
+    const userId = req.user?.id;
     try {
       const { success, message }: crudRpta = await ProjectDAO.getProjectById({
         projectId,
-        managerId,
+        userId,
       });
       success ? res.send(message) : res.status(400).send({ error: message });
     } catch (error) {

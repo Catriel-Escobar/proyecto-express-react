@@ -14,6 +14,7 @@ import { statusSchema } from "../schemas/statusSchema.zod";
 import { authValidate } from "../middlewares/validate.auth";
 import { UserMail } from "../schemas/authSchema.zod";
 import { TeamMemberController } from "../controllers/TeamController";
+import { hasAuthorization, validateTask } from "../middlewares/validate.task";
 
 const router = Router();
 
@@ -55,6 +56,7 @@ router.post(
   "/:projectId/tasks",
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaBody(createTaskSchema),
+  hasAuthorization,
   TaskController.createTask
 );
 
@@ -68,6 +70,7 @@ router.get(
   "/:projectId/tasks/:taskId",
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "taskId"),
+  validateTask,
   TaskController.getTaskById
 );
 
@@ -75,6 +78,8 @@ router.put(
   "/:projectId/tasks/:taskId",
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "taskId"),
+  validateTask,
+  hasAuthorization,
   validateSchemaBody(createTaskSchema),
   TaskController.updateTask
 );
@@ -83,6 +88,8 @@ router.delete(
   "/:projectId/tasks/:taskId",
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "taskId"),
+  validateTask,
+  hasAuthorization,
   TaskController.deleteTask
 );
 
@@ -91,6 +98,7 @@ router.post(
   validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "taskId"),
   validateSchemaBody(statusSchema),
+  validateTask,
   TaskController.updateStatus
 );
 

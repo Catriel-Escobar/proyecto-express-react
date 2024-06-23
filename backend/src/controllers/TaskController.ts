@@ -85,11 +85,9 @@ export class TaskController {
     const { taskId, projectId } = req.params;
     try {
       const { success, message }: crudRpta = await TaskDAO.updateStatus(
-        {
-          taskId,
-          projectId,
-        },
-        req.body
+        req.task,
+        req.body,
+        req.user!.id
       );
       success
         ? res.send({ message: message })
