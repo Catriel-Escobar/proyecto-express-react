@@ -33,6 +33,7 @@ export async function getTaskById({
     const { data } = await api.get(url);
     const response = taskSchema.safeParse(data);
     if (response.success) {
+      console.log(response.data);
       return response.data;
     } else {
       throw new AxiosError("Invalid data format");

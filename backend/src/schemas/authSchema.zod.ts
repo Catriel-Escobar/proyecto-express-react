@@ -52,6 +52,11 @@ export const LoginSchema = CreateAuthSchema.pick({
   password: true,
 });
 
+export const ProfileUpdate = CreateAuthSchema.pick({
+  name: true,
+  email: true,
+});
+
 export type UserType = z.infer<typeof CreateAuthSchema>;
 export type LoginType = z.infer<typeof LoginSchema>;
 
@@ -65,3 +70,18 @@ export default CreateAuthSchema.refine(
     path: ["repassword"],
   }
 );
+
+export const UpdateCurrentUserPassword = z
+  .object({
+    current_password: z.string({ message: "El password es requerido" }),
+    password: z
+      .string({ message: "El password nuevo es requerido" })
+      .min(8, { message: "El minimo de caracteres es 8" }),
+    repassword: z.string({
+      message: "El password de confirmacion es requerido",
+    }),
+  })
+  .refine((data) => data.password === data.repassword, {
+    message: "Los password no coinciden",
+    path: ["repassword"],
+  });

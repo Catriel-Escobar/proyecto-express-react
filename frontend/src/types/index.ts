@@ -5,6 +5,7 @@ import { z } from "zod";
 export const authSchema = z.object({
   name: z.string(),
   email: z.string().email(),
+  current_password: z.string(),
   password: z.string(),
   repassword: z.string(),
   token: z.string(),
@@ -12,16 +13,15 @@ export const authSchema = z.object({
 
 //! AUTH SCHEMA
 
-export const userSchema = authSchema
-  .pick({
-    name: true,
-    email: true,
-  })
-  .extend({
-    _id: z.string({ message: "el id debe ser de tipo number" }),
-  });
+export const userSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  _id: z.string(),
+});
 
 export type User = z.infer<typeof userSchema>;
+
+export type UserProfileForm = Pick<User, "name" | "email">;
 
 export type Auth = z.infer<typeof authSchema>;
 export type ConfirmToken = Pick<Auth, "token">;
@@ -33,6 +33,10 @@ export type UserRegistrationForm = Pick<
 export type RequestConfirmationCodeForm = Pick<Auth, "email">;
 export type ForgotPasswordForm = Pick<Auth, "email">;
 export type NewPasswordForm = Pick<Auth, "password" | "repassword">;
+export type UpdateCurrentPasswordUser = Pick<
+  Auth,
+  "current_password" | "password" | "repassword"
+>;
 // tasks
 
 export const taskStatusSchema = z.enum([
@@ -42,6 +46,19 @@ export const taskStatusSchema = z.enum([
   "underReview",
   "completed",
 ]);
+
+/** */
+export const noteSchema = z.object({
+  _id: z.string(),
+  content: z.string(),
+  createdBy: userSchema,
+  task: z.string(),
+  createdAt: z.string(),
+});
+
+export type Note = z.infer<typeof noteSchema>;
+
+export type NoteFormData = Pick<Note, "content">;
 
 //! task schema
 export const taskSchema = z.object({
@@ -58,6 +75,7 @@ export const taskSchema = z.object({
       status: taskStatusSchema,
     })
   ), // PARA RECIBIR
+  notes: z.array(noteSchema.or(z.string()).or(z.null())),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

@@ -9,6 +9,12 @@ type NoteCreateType = {
   userId: Types.ObjectId;
 };
 
+type NoteDeleteType = {
+  noteId: Types.ObjectId;
+  userId: NoteCreateType["userId"];
+  task: ITask;
+};
+
 export class NoteDAO {
   static createNote = async ({
     content,
@@ -47,6 +53,36 @@ export class NoteDAO {
     } catch (error) {
       console.log(error);
       throw new Error("Error al traer Notas");
+    }
+  };
+  static deleteNote = async ({
+    noteId,
+    userId,
+    task,
+  }: NoteDeleteType): Promise<crudRpta> => {
+    const respuesta: crudRpta = { success: false };
+    try {
+      const note = await Note.findById(noteId);
+
+      if (!note) {
+        respuesta.message = "Nota no encontrada";
+        respuesta.status = 404;
+      } else if (note.createdBy.toString() !== userId.toString()) {
+        respuesta.message = "Accion no valida";
+        respuesta.status = 401;
+      } else {
+        task.notes = task.notes.filter(
+          (note) => note.toString() !== noteId.toString()
+        );
+
+        await Promise.allSettled([note.deleteOne(), task.save()]);
+        respuesta.success = true;
+        respuesta.message = "Nota eliminada!";
+      }
+      return respuesta;
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error desde deleteNote");
     }
   };
 }

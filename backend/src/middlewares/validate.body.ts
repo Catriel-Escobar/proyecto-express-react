@@ -11,9 +11,14 @@ export const validateSchemaBody =
     } catch (error: unknown) {
       console.log(error);
       if (error instanceof ZodError) {
-        return res.status(400).json(error.errors.map((error) => error.message));
+        // Estructuramos los errores en un array de objetos
+        const errorDetails = error.errors.map((err) => ({
+          path: err.path.join("."),
+          message: err.message,
+        }));
+        return res.status(400).json(errorDetails);
       } else if (error instanceof Error) {
-        return res.status(400).json(error.message);
+        return res.status(400).json({ message: error.message });
       }
     }
   };

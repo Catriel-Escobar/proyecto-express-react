@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
-import Note, { INote } from "../models/Note";
 import { NoteDAO } from "../dao/NoteDAO";
 import { ITask } from "../models/Task";
+import { Types } from "mongoose";
+
+type NoteParamsType = {
+  noteId: Types.ObjectId;
+};
+
 export class NoteController {
   static createNote = async (req: Request, res: Response) => {
     const { content } = req.body;
-    const task: ITask = req.task;
+    const task = req.task;
     const userId = req.user?.id;
     try {
       const { success, message } = await NoteDAO.createNote({
@@ -29,8 +34,18 @@ export class NoteController {
     }
   };
   static deleteNote = async (req: Request, res: Response) => {
-    const { noteId } = req.params;
+    const noteId = new Types.ObjectId(req.params.noteId);
+    const userId = req.user?.id;
+    const task = req.task;
     try {
+      const { success, message, status } = await NoteDAO.deleteNote({
+        noteId,
+        userId,
+        task,
+      });
+      success
+        ? res.send({ message: message })
+        : res.status(status!).send({ error: message });
     } catch (error) {}
   };
 }
