@@ -39,4 +39,19 @@ export class ProfileController {
       res.status(500).send({ error: "Hubo un error" });
     }
   };
+  static checkPassowrd = async (req: Request, res: Response) => {
+    const { password } = req.body;
+    try {
+      const { success, message, status } = await ProfileDAO.checPassword(
+        password,
+        req.user!
+      );
+      success
+        ? res.send({ message })
+        : res.status(status!).send({ error: message });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ error: "Hubo un error" });
+    }
+  };
 }

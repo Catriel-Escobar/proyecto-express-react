@@ -66,16 +66,13 @@ export class TaskController {
   };
 
   static deleteTask = async (req: Request, res: Response) => {
-    const { taskId, projectId } = req.params;
     try {
-      const { success, message }: crudRpta = await TaskDAO.deleteTask(
-        { taskId, projectId },
+      const { message }: crudRpta = await TaskDAO.deleteTask(
+        req.task,
         req.project
       );
 
-      success
-        ? res.send({ message: message })
-        : res.status(400).send({ error: message });
+      res.send({ message: message });
     } catch (error) {
       res.status(500).send({ error: "Error interno." });
     }

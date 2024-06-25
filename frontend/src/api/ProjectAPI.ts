@@ -3,7 +3,8 @@ import {
   Project,
   ProjectFormData,
   dashboardProjectSchema,
-  ProjectByIdSchema,
+  editProjectSchema,
+  projectSchema,
 } from "../types";
 import { AxiosError } from "axios";
 
@@ -39,7 +40,23 @@ export async function GetProjects() {
 export async function GetProjectsById(id: Project["_id"]) {
   try {
     const { data } = await api(`/projects/${id}`);
-    const response = ProjectByIdSchema.safeParse(data);
+    const response = projectSchema.safeParse(data);
+    if (response.success) {
+      return response.data;
+    }
+    throw new AxiosError("Los datos devueltos son incorrectos");
+    // const response = dashboardProjectSchema.safeParse(data);
+  } catch (error) {
+    if (error instanceof AxiosError && error.response) {
+      throw new Error(error.response.data.error);
+    }
+  }
+}
+
+export async function GetProjectsByIdEdit(id: Project["_id"]) {
+  try {
+    const { data } = await api(`/projects/${id}`);
+    const response = editProjectSchema.safeParse(data);
     if (response.success) {
       return response.data;
     }

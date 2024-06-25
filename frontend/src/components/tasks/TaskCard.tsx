@@ -1,5 +1,5 @@
 import { deleteTask } from "@/api/TaskAPI";
-import { Task } from "@/types/index";
+import { taskProjectType } from "@/types/index";
 import { Menu, Transition } from "@headlessui/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { Fragment } from "react/jsx-runtime";
 
 type TaskCardProp = {
-  task: Task;
+  task: taskProjectType;
   canEdit: boolean;
 };
 
@@ -17,7 +17,6 @@ export default function TaskCard({ task, canEdit }: TaskCardProp) {
   const params = useParams();
   const projectId = params.projectId!;
   const queryClient = useQueryClient();
-  console.log(canEdit);
   const { mutate } = useMutation({
     mutationFn: deleteTask,
     onError: (error) => {
@@ -28,6 +27,7 @@ export default function TaskCard({ task, canEdit }: TaskCardProp) {
       toast.success(data.message);
     },
   });
+
   return (
     <li className="p-5 bg-white border border-slate-300 flex justify-between gap-3">
       <div className=" min-w-0 flex flex-col gap-y-4">

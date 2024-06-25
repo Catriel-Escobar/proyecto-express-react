@@ -1,3 +1,4 @@
+import { MongooseError } from "mongoose";
 import User, { IUser } from "../models/User";
 import { crudRpta } from "../types/types.response";
 import { comparePassword, hashPassword } from "../utils/hashing";
@@ -52,6 +53,36 @@ export class ProfileDAO {
     } catch (error) {
       console.log(error);
       throw new Error("Error al actualizar passwordd");
+    }
+  };
+  static checPassword = async (
+    password: string,
+    user: IUser
+  ): Promise<crudRpta> => {
+    const respuesta: crudRpta = { success: true };
+    try {
+      const userFind = await User.findById(user.id);
+
+      const isPasswordCorrect = await comparePassword(
+        password,
+        userFind!.password
+      );
+      if (!isPasswordCorrect) {
+        respuesta.success = false;
+        respuesta.message = "El password actual es incorrecto";
+        respuesta.status = 401;
+      } else {
+        respuesta.message = "Password correcto!";
+      }
+      return respuesta;
+    } catch (error) {
+      if (error instanceof MongooseError) {
+        console.log(error.message);
+        throw new Error(error.message);
+      } else {
+        console.log(error);
+        throw new Error("Ocurrio un error");
+      }
     }
   };
 }

@@ -1,13 +1,13 @@
 import { Navigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { GetProjectsById } from "@/api/ProjectAPI";
+import { GetProjectsByIdEdit } from "@/api/ProjectAPI";
 import EditProjectForm from "@/components/projects/EditProjectForm";
 export default function EditProjectView() {
   const params = useParams();
   const projectId = params.projectId!;
   const { data, isLoading, isError } = useQuery({
     queryKey: ["editProjects", projectId],
-    queryFn: () => GetProjectsById(projectId),
+    queryFn: () => GetProjectsByIdEdit(projectId),
     retry: false, // cuantas veces intenta hacer la consulta.
   });
 

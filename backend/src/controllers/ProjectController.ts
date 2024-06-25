@@ -16,9 +16,9 @@ export class ProjectController {
   };
   // *GEEET ALL
   static getAllProjects = async (req: Request, res: Response) => {
-    const { id } = req.user!;
+    const userId = req.user?.id;
     try {
-      const { message }: crudRpta = await ProjectDAO.getAllProjects(id);
+      const { message }: crudRpta = await ProjectDAO.getAllProjects(userId);
       res.send(message);
     } catch (error) {
       res.status(500).send({ error: "Error interno." });
@@ -27,7 +27,7 @@ export class ProjectController {
 
   // *GEEET BY ID
   static getProjectById = async (req: Request, res: Response) => {
-    const projectId = req.params.id;
+    const projectId = req.params.projectId;
     const userId = req.user?.id;
     try {
       const { success, message }: crudRpta = await ProjectDAO.getProjectById({
@@ -42,16 +42,13 @@ export class ProjectController {
 
   //? UPDATE
   static updateProject = async (req: Request, res: Response) => {
-    const managerId: string = req.user?.id;
     try {
-      const { success, message }: crudRpta = await ProjectDAO.updateProject(
-        req.params.id,
-        managerId,
+      const { message }: crudRpta = await ProjectDAO.updateProject(
+        req.params.projectId,
         req.body
       );
-      success
-        ? res.send({ message: message })
-        : res.status(400).send({ error: message });
+
+      res.send({ message: message });
     } catch (error) {
       res.status(500).send({ error: "Error interno." });
     }
@@ -59,15 +56,10 @@ export class ProjectController {
 
   //!DELETE
   static deleteProject = async (req: Request, res: Response) => {
-    const managerId: string = req.user?.id;
     try {
-      const { success, message }: crudRpta = await ProjectDAO.deleteProject(
-        req.params.id,
-        managerId
-      );
-      success
-        ? res.send({ message: message })
-        : res.status(400).send({ error: message });
+      const { message }: crudRpta = await ProjectDAO.deleteProject(req.project);
+
+      res.send({ message: message });
     } catch (error) {
       res.status(500).send({ error: "Error interno." });
     }

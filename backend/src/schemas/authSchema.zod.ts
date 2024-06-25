@@ -57,6 +57,10 @@ export const ProfileUpdate = CreateAuthSchema.pick({
   email: true,
 });
 
+export const ProfileCheckPassword = CreateAuthSchema.pick({
+  password: true,
+});
+
 export type UserType = z.infer<typeof CreateAuthSchema>;
 export type LoginType = z.infer<typeof LoginSchema>;
 

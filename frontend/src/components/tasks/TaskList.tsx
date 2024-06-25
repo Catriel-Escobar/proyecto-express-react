@@ -1,18 +1,18 @@
-import { Task } from "@/types/index";
+import { taskProjectType } from "@/types/index";
 import TaskCard from "./TaskCard";
 import { statusTranslations } from "@/locales/es";
 
 type TaskListProps = {
-  tasks: Task[];
+  tasks: taskProjectType[];
   canEdit: boolean;
 };
 
 type TaskGroups = {
-  pending: Task[];
-  onHold: Task[];
-  inProgress: Task[];
-  underReview: Task[];
-  completed: Task[];
+  pending: taskProjectType[];
+  onHold: taskProjectType[];
+  inProgress: taskProjectType[];
+  underReview: taskProjectType[];
+  completed: taskProjectType[];
 };
 
 const initialTaskGroups: TaskGroups = {
@@ -37,6 +37,7 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
     currentGroup = [...currentGroup, task];
     return { ...acc, [task.status]: currentGroup };
   }, initialTaskGroups);
+
   return (
     <>
       <h2 className="text-5xl font-black my-10">Tareas</h2>
@@ -48,6 +49,7 @@ export default function TaskList({ tasks, canEdit }: TaskListProps) {
               className={`capitalize text-xl font-light border ${statusStyles[status]} bg-white p-3 border-t-8`}>
               {statusTranslations[status]}
             </h3>
+
             <ul className="mt-5 space-y-5">
               {tasks.length === 0 ? (
                 <li className="text-gray-500 text-center pt-3">

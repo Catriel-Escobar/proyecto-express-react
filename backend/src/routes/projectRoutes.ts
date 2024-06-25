@@ -22,6 +22,12 @@ const router = Router();
 
 router.use(authValidate);
 
+//!! MIDDLEWAREAS PARA VALIDAR PROYECT ID TASK ID Y EXISTENCIA DE AMBOS.
+router.param("projectId", validateSchemaParams(ObjectIdSchema, "projectId"));
+router.param("taskId", validateSchemaParams(ObjectIdSchema, "taskId"));
+router.param("projectId", validateProjectExists);
+router.param("taskId", validateTask);
+
 router.post(
   "/",
   validateSchemaBody(createProjectSchema),
@@ -31,36 +37,20 @@ router.post(
 
 router.get("/", ProjectController.getAllProjects);
 
-router.get(
-  "/:id",
-  validateSchemaParams(ObjectIdSchema, "id"),
-  ProjectController.getProjectById
-);
+router.get("/:projectId", ProjectController.getProjectById);
 
 router.put(
-  "/:id",
-  validateSchemaParams(ObjectIdSchema, "id"),
+  "/:projectId",
   validateSchemaBody(createProjectSchema),
   ProjectController.updateProject
 );
 
-router.delete(
-  "/:id",
-  validateSchemaParams(ObjectIdSchema, "id"),
-  ProjectController.deleteProject
-);
+router.delete("/:projectId", hasAuthorization, ProjectController.deleteProject);
 
 //! TASKS
 
-//!! MIDDLEWAREAS PARA VALIDAR PROYECT ID TASK ID Y EXISTENCIA DE AMBOS.
-router.param("projectId", validateSchemaParams(ObjectIdSchema, "projectId"));
-router.param("taskId", validateSchemaParams(ObjectIdSchema, "taskId"));
-router.param("projectId", validateProjectExists);
-router.param("taskId", validateTask);
-
 router.post(
   "/:projectId/tasks",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaBody(createTaskSchema),
   hasAuthorization,
   TaskController.createTask
@@ -70,17 +60,12 @@ router.get("/:projectId/tasks", TaskController.getProjectTasks);
 
 router.get(
   "/:projectId/tasks/:taskId",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
-  validateSchemaParams(ObjectIdSchema, "taskId"),
 
   TaskController.getTaskById
 );
 
 router.put(
   "/:projectId/tasks/:taskId",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
-  validateSchemaParams(ObjectIdSchema, "taskId"),
-
   hasAuthorization,
   validateSchemaBody(createTaskSchema),
   TaskController.updateTask
@@ -88,17 +73,12 @@ router.put(
 
 router.delete(
   "/:projectId/tasks/:taskId",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
-  validateSchemaParams(ObjectIdSchema, "taskId"),
-
   hasAuthorization,
   TaskController.deleteTask
 );
 
 router.post(
   "/:projectId/tasks/:taskId/status",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
-  validateSchemaParams(ObjectIdSchema, "taskId"),
   validateSchemaBody(statusSchema),
   TaskController.updateStatus
 );
@@ -107,26 +87,19 @@ router.post(
 
 router.post(
   "/:projectId/team/find",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaBody(UserMail),
   TeamMemberController.findMemberByEmail
 );
 
-router.get(
-  "/:projectId/team",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
-  TeamMemberController.getProjectTeam
-);
+router.get("/:projectId/team", TeamMemberController.getProjectTeam);
 router.post(
   "/:projectId/team",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaBody(ObjectIdSchemaObj),
   TeamMemberController.addMemberById
 );
 
 router.delete(
   "/:projectId/team/:userId",
-  validateSchemaParams(ObjectIdSchema, "projectId"),
   validateSchemaParams(ObjectIdSchema, "userId"),
   TeamMemberController.removeMemberById
 );

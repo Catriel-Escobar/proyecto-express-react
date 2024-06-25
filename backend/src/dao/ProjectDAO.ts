@@ -1,9 +1,15 @@
 import { Types } from "mongoose";
-import Project from "../models/Projects";
+import Project, { IProject } from "../models/Projects";
 import { crudRpta } from "../types/types.response";
 import { cleanObject } from "../utils/transformObjects";
+import Task, { ITask } from "../models/Task";
 
 type estandarObject = { [key: string]: string };
+type formProjectType = {
+  projectName: string;
+  clientName: string;
+  description: string;
+};
 type FindByIdType = {
   projectId: string;
   userId: Types.ObjectId;
@@ -33,14 +39,14 @@ export class ProjectDAO {
     }
   };
 
-  static getAllProjects = async (id: string): Promise<crudRpta> => {
+  static getAllProjects = async (userId: Types.ObjectId): Promise<crudRpta> => {
     const respuesta: crudRpta = {
       success: true,
       message: "",
     };
     try {
       respuesta.message = await Project.find({
-        $or: [{ manager: { $in: id } }, { team: { $in: id } }],
+        $or: [{ manager: { $in: userId } }, { team: { $in: userId } }],
       });
       return respuesta;
     } catch (error) {
@@ -64,20 +70,16 @@ export class ProjectDAO {
         },
       });
 
-      if (!project) {
+      if (
+        project!.manager?.toString() !== userId?.toString() &&
+        !project!.team.includes(userId)
+      ) {
         respuesta.success = false;
-        respuesta.message = "Proyecto no encontrado";
+        respuesta.message = "No tenes acceso a este proyecto";
       } else {
-        if (
-          project.manager?.toString() !== userId?.toString() &&
-          !project.team.includes(userId)
-        ) {
-          respuesta.success = false;
-          respuesta.message = "No tenes acceso a este proyecto";
-        } else {
-          respuesta.message = project;
-        }
+        respuesta.message = project;
       }
+
       return respuesta;
     } catch (error) {
       console.error("Error en la consulta de tareas:", error);
@@ -86,57 +88,25 @@ export class ProjectDAO {
   };
 
   static updateProject = async (
-    id: string,
-    managerId: string,
-    object: estandarObject
+    projectId: string,
+    object: formProjectType
   ): Promise<crudRpta> => {
-    const respuesta: crudRpta = {
-      success: true,
-      message: "",
-    };
+    const respuesta: crudRpta = { success: true };
     const newObj = cleanObject(object);
     try {
-      const project = await Project.findByIdAndUpdate(id, newObj);
-      if (!project) {
-        respuesta.success = false;
-        respuesta.message = "Proyecto no encontrado";
-      } else {
-        if (project.manager?.toString() !== managerId) {
-          respuesta.success = false;
-          respuesta.message = "Solo el manager puede actualizar el proyecto";
-        } else {
-          await project.save();
-          respuesta.message = "Proyecto actualizado!";
-        }
-      }
+      await Project.findByIdAndUpdate(projectId, newObj);
+      respuesta.message = "Proyecto actualizado!";
       return respuesta;
     } catch (error) {
       throw new Error("Error en la consulta de tareas");
     }
   };
 
-  static deleteProject = async (
-    id: string,
-    managerId: string
-  ): Promise<crudRpta> => {
-    const respuesta: crudRpta = {
-      success: true,
-      message: "",
-    };
+  static deleteProject = async (project: IProject): Promise<crudRpta> => {
+    const respuesta: crudRpta = { success: true };
     try {
-      const project = await Project.findById(id);
-      if (!project) {
-        respuesta.success = false;
-        respuesta.message = "Proyecto no encontrado";
-      } else {
-        if (project.manager?.toString() !== managerId) {
-          respuesta.success = false;
-          respuesta.message = "Solo el manager puede eliminar el proyecto";
-        } else {
-          await project.deleteOne();
-          respuesta.message = "Proyecto Eliminado";
-        }
-      }
+      await project.deleteOne();
+      respuesta.message = "Proyecto Eliminado";
       return respuesta;
     } catch (error) {
       throw new Error("Error en la consulta de Projectos");

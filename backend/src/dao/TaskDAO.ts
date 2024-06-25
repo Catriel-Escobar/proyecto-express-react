@@ -115,7 +115,7 @@ export class TaskDAO {
   };
 
   static deleteTask = async (
-    ids: objectIds,
+    taskIn: ITask,
     project: IProject
   ): Promise<crudRpta> => {
     const respuesta: crudRpta = {
@@ -123,20 +123,13 @@ export class TaskDAO {
       message: "",
     };
     try {
-      const task = await Task.findById(ids.taskId);
-      if (!task || task === null) {
-        respuesta.message = "No hay una tarea con ese id";
-        respuesta.success = false;
-      } else if (task?.project.toString() !== ids.projectId) {
-        respuesta.message = "No hay una tarea con ese id en el Proyecto";
-        respuesta.success = false;
-      } else {
-        project.tasks = project.tasks.filter(
-          (task) => task!.toJSON() !== ids.taskId
-        );
-        await Promise.allSettled([task?.deleteOne(), project.save()]);
-        respuesta.message = "Tarea Eliminada";
-      }
+      project.tasks = project.tasks.filter(
+        (task) => task!.toJSON() !== taskIn.id.toString()
+      );
+
+      await Promise.allSettled([taskIn?.deleteOne(), project.save()]);
+      respuesta.message = "Tarea Eliminada";
+
       return respuesta;
     } catch (error) {
       console.error("Error en la consulta de tareas:", error);

@@ -37,6 +37,7 @@ export type UpdateCurrentPasswordUser = Pick<
   Auth,
   "current_password" | "password" | "repassword"
 >;
+export type CheckPasswordForm = Pick<UpdateCurrentPasswordUser, "password">;
 // tasks
 
 export const taskStatusSchema = z.enum([
@@ -75,11 +76,19 @@ export const taskSchema = z.object({
       status: taskStatusSchema,
     })
   ), // PARA RECIBIR
-  notes: z.array(noteSchema.or(z.string()).or(z.null())),
+  notes: z.array(noteSchema),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
 
+export const taskProjectSchema = taskSchema.pick({
+  _id: true,
+  name: true,
+  description: true,
+  status: true,
+});
+
+export type taskProjectType = z.infer<typeof taskProjectSchema>;
 export type Task = z.infer<typeof taskSchema>;
 export type TaskStatus = z.infer<typeof taskStatusSchema>;
 export type TaskFormData = Pick<Task, "name" | "description">;
@@ -93,8 +102,8 @@ export const projectSchema = z.object({
   clientName: z.string(),
   description: z.string(),
   manager: z.string(userSchema.pick({ _id: true })),
-  tasks: z.array(taskSchema),
-  team: z.array(z.string()),
+  tasks: z.array(taskProjectSchema),
+  team: z.array(z.string(userSchema.pick({ _id: true }))),
 });
 
 export const dashboardProjectSchema = z.array(
@@ -107,6 +116,12 @@ export const dashboardProjectSchema = z.array(
     manager: true,
   })
 );
+
+export const editProjectSchema = projectSchema.pick({
+  projectName: true,
+  clientName: true,
+  description: true,
+});
 
 export type Project = z.infer<typeof projectSchema>; // Creo un Type de ts con los atributos del schema de zod.
 
@@ -131,15 +146,12 @@ export type TeamMember = z.infer<typeof TeamMemberSchema>;
 
 export type TeamMemberForm = Pick<TeamMember, "email">;
 
-export const ProjectByIdSchema = projectSchema
-  .pick({
-    _id: true,
-    clientName: true,
-    description: true,
-    manager: true,
-    projectName: true,
-    team: true,
-  })
-  .extend({
-    tasks: z.array(taskSchema),
-  });
+export const ProjectByIdSchema = projectSchema.pick({
+  _id: true,
+  clientName: true,
+  description: true,
+  manager: true,
+  projectName: true,
+  tasks: true,
+  team: true,
+});
